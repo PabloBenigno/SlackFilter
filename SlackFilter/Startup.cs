@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,7 +6,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SlackFilter.Configuration;
 using SlackFilter.MessageProcessor;
-using Spin.Runtime;
 using Spin.WebApi;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -75,17 +73,6 @@ namespace SlackFilter
             });
 
             app.UseMvc();
-        }
-    }
-
-    internal static class Factories
-    {
-        internal static ISpinExecutionContext ExecutionContextFactory(IServiceProvider serviceProvider)
-        {
-            return new SpinExecutionContext()
-            {
-                ServiceProvider = serviceProvider
-            };
         }
     }
 }
