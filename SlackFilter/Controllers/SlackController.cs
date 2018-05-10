@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using SlackFilter.MessageProcessor;
 using SlackFilter.Model;
 
 namespace SlackFilter.Controllers
