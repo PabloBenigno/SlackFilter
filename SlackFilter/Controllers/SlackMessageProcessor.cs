@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SlackFilter.Configuration;
 using SlackFilter.Model;
 
 namespace SlackFilter.Controllers
