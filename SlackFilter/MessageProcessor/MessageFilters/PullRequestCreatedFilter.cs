@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using SlackFilter.Configuration;
-using SlackFilter.MessageProcessor;
 using SlackFilter.Model;
+using static SlackFilter.MessageProcessor.FieldPredicates;
 
 namespace SlackFilter.MessageProcessor.MessageFilters
 {
@@ -16,8 +16,8 @@ namespace SlackFilter.MessageProcessor.MessageFilters
 
         public bool PassFilter(MessageAttachment attachment)
         {
-            return _configuration.RequesterList.Any(_ => attachment.Pretext.StartsWith((string) _)) ||
-                   attachment.Fields.Any(_ => FieldPredicates.ReviewersAreAllowed(_, _configuration.RequesterList));
+            return _configuration.RequesterList.Any(_ => attachment.Pretext.StartsWith(_)) ||
+                   attachment.Fields.Any(_ => ReviewersAreAllowed(_, _configuration.RequesterList));
         }
     }
 }

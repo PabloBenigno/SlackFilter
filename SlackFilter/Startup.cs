@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SlackFilter.Configuration;
-using SlackFilter.Controllers;
 using SlackFilter.MessageProcessor;
 using Swashbuckle.AspNetCore.Swagger;
 
