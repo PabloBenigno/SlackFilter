@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,6 +7,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SlackFilter.Configuration;
 using SlackFilter.MessageProcessor;
+using Spin.Runtime;
+using Spin.WebApi;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace SlackFilter
@@ -28,6 +31,11 @@ namespace SlackFilter
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped(Factories.ExecutionContextFactory);
+
+            services.AddSpinRequestLogging()
+                .AddSpinLogger();
+
             var configuration = Configuration.GetSection("SlackFilterConfiguration").Get<SlackFilterConfiguration>();
             services.AddSingleton(configuration);
 
@@ -55,6 +63,11 @@ namespace SlackFilter
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseSpinRequestLogging();
+
+            app.UseSpinExecutionContextPopulatorMiddleware()
+                .AlwaysUseCachedSpinRequestContextData();
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
@@ -65,5 +78,14 @@ namespace SlackFilter
         }
     }
 
-    
+    internal static class Factories
+    {
+        internal static ISpinExecutionContext ExecutionContextFactory(IServiceProvider serviceProvider)
+        {
+            return new SpinExecutionContext()
+            {
+                ServiceProvider = serviceProvider
+            };
+        }
+    }
 }

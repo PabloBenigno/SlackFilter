@@ -9,15 +9,16 @@ using SlackFilter.Configuration;
 using SlackFilter.MessageProcessor.MessageFilters;
 using SlackFilter.MessageProcessor.MessageTransformers;
 using SlackFilter.Model;
+using Spin.Logger.Abstractions;
 
 namespace SlackFilter.MessageProcessor
 {
     public class SlackMessageProcessor
     {
-        private readonly ILogger<SlackMessageProcessor> _logger;
+        private readonly ISpinLogger<SlackMessageProcessor> _logger;
         private readonly TeamConfiguration[] _teamConfigurations;
 
-        public SlackMessageProcessor(SlackFilterConfiguration configuration, ILogger<SlackMessageProcessor> logger)
+        public SlackMessageProcessor(SlackFilterConfiguration configuration, ISpinLogger<SlackMessageProcessor> logger)
         {
             _teamConfigurations = configuration.TeamConfigurations;
             if (logger != null) _logger = logger;
@@ -29,13 +30,13 @@ namespace SlackFilter.MessageProcessor
 
             if (slackMessage == null)
             {
-                _logger.LogWarning($"Invalid message received {message}");
+                _logger.Log(LogLevel.Warning, $"Invalid message received {message}");
                 return;
             }
 
             foreach (var teamConfiguration in _teamConfigurations)
             {
-                _logger.LogInformation($"Checking filters for team {teamConfiguration.Name}...");
+                _logger.Log(LogLevel.Information, $"Checking filters for team {teamConfiguration.Name}...");
                 ProcessMessageByTeam(subject, slackMessage, teamConfiguration);
             }
         }
@@ -58,7 +59,7 @@ namespace SlackFilter.MessageProcessor
                 PostMessageToSlack(JsonConvert.SerializeObject(messageToPost), teamConfiguration.SlackUrl);
             }
             else
-                _logger.LogInformation("Failed to pass the filter.");
+                _logger.Log(LogLevel.Information, "Failed to pass the filter.");
         }
 
         private static bool PassFilter(MessageAttachment attachment, SlackMessageSubject subject, TeamConfiguration configuration)
@@ -83,7 +84,7 @@ namespace SlackFilter.MessageProcessor
                 using (var streamReader = new StreamReader(response.Content.ReadAsStreamAsync().Result))
                 {
                     var result = streamReader.ReadToEnd();
-                    _logger.LogInformation(result);
+                    _logger.Log(LogLevel.Information, result);
                 }
             }
         }
