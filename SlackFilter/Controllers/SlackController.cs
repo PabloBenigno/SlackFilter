@@ -1,11 +1,12 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SlackFilter.Model.BuildCompleted;
+using SlackFilter.Model;
 
 namespace SlackFilter.Controllers
 {
@@ -29,15 +30,7 @@ namespace SlackFilter.Controllers
         {
             _logger.LogInformation($"Build completed:\n {message}!");
 
-            var buildCompletedMessage = JsonConvert.DeserializeObject<SlackMessage>(message.ToString());
-
-            if (_slackFilterHelper.PassFilter(buildCompletedMessage))
-            {
-                _slackFilterHelper.TransformMessage(buildCompletedMessage);
-                PostMessageToSlack(JsonConvert.SerializeObject(buildCompletedMessage));
-            }
-            else
-                _logger.LogInformation("Failed to pass the filter.");
+            ProcessMessage(message, SlackMessageSubject.BuildCompleted);
         }
 
         [HttpPost]
@@ -45,7 +38,36 @@ namespace SlackFilter.Controllers
         public void PullRequestCreated([FromBody] JObject message)
         {
             _logger.LogInformation($"Pull request created:\n {message}!");
-            PostMessageToSlack(message.ToString());
+
+            ProcessMessage(message, SlackMessageSubject.PullRequestCreated);
+        }
+
+        [HttpPost]
+        [Route("ReleaseCompleted")]
+        public void ReleaseCompleted([FromBody] JObject message)
+        {
+            _logger.LogInformation($"Release completed:\n {message}!");
+            ProcessMessage(message, SlackMessageSubject.ReleaseCompleted);
+        }
+
+        private void ProcessMessage(JObject message, SlackMessageSubject subject)
+        {
+            var slackMessage = JsonConvert.DeserializeObject<SlackMessage>(message.ToString());
+
+            var passingAttachments = slackMessage.Attachments
+                .Where(_ => _slackFilterHelper.PassFilter(_, subject)).ToList();
+
+            if (passingAttachments.Any())
+            {
+                var messageToPost = new SlackMessage
+                {
+                    Attachments = passingAttachments.Select(m => _slackFilterHelper.TransformMessage(m)).ToArray()
+                };
+
+                PostMessageToSlack(JsonConvert.SerializeObject(messageToPost));
+            }
+            else
+                _logger.LogInformation("Failed to pass the filter.");
         }
 
         private void PostMessageToSlack(string value)
