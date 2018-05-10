@@ -7,5 +7,6 @@
         public string[] RequesterList { get; set; }
         public string[] BuildList { get; set; }
         public MessageTransformation MessageTransformation { get; set; }
+        public string[] ReleaseList { get; set; }
     }
 }

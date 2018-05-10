@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -49,7 +50,7 @@ namespace SlackFilter.Controllers
             {
                 var messageToPost = new SlackMessage
                 {
-                    Attachments = passingAttachments.Select(_ => TransformMessage(_, teamConfiguration.MessageTransformation))
+                    Attachments = passingAttachments.Select(_ => TransformMessage(_, subject, teamConfiguration.MessageTransformation))
                         .ToArray()
                 };
 
@@ -67,24 +68,37 @@ namespace SlackFilter.Controllers
                     return attachment.Fields.Any(_ => RequesterIsAllowed(_, configuration.RequesterList))
                            || attachment.Fields.Any(_ => BuildIsAllowed(_, configuration.BuildList));
                 case SlackMessageSubject.PullRequestCreated:
+                    return configuration.RequesterList.Any(_ => attachment.Pretext.StartsWith(_)) ||
+                        attachment.Fields.Any(_ => ReviewersAreAllowed(_, configuration.RequesterList));
                 case SlackMessageSubject.ReleaseCompleted:
-                    return true;
+                    return configuration.ReleaseList.Any(_ =>
+                        attachment.Fallback.StartsWith($"Deployment of release {_}"));
                 default:
                     return false;
             }
         }
 
-        private static MessageAttachment TransformMessage(MessageAttachment attachment, MessageTransformation transformation)
+        private static MessageAttachment TransformMessage(MessageAttachment attachment, SlackMessageSubject subject, MessageTransformation transformation)
         {
-            if (transformation == null) return attachment;
+            switch (subject)
+            {
+                case SlackMessageSubject.BuildCompleted:
+                    if (transformation == null) return attachment;
 
-            if (attachment.Pretext.EndsWith("partially succeeded"))
-                attachment.Pretext = $"{attachment.Pretext} {transformation.PartialSuccessSuffix}";
-            else if (attachment.Pretext.EndsWith("succeeded"))
-                attachment.Pretext = $"{attachment.Pretext} {transformation.SuccessSuffix}";
-            else if (attachment.Pretext.EndsWith("failed"))
-                attachment.Pretext = $"{attachment.Pretext} {transformation.FailSuffix}";
-            return attachment;
+                    if (attachment.Pretext.EndsWith("partially succeeded"))
+                        attachment.Pretext = $"{attachment.Pretext} {transformation.PartialSuccessSuffix}";
+                    else if (attachment.Pretext.EndsWith("succeeded"))
+                        attachment.Pretext = $"{attachment.Pretext} {transformation.SuccessSuffix}";
+                    else if (attachment.Pretext.EndsWith("failed"))
+                        attachment.Pretext = $"{attachment.Pretext} {transformation.FailSuffix}";
+                    return attachment;
+                case SlackMessageSubject.PullRequestCreated:
+                case SlackMessageSubject.ReleaseCompleted:
+                    return attachment;
+                default:
+                    return attachment;
+            }
+            
         }
 
         private void PostMessageToSlack(string value, string slackUrl)
@@ -110,6 +124,12 @@ namespace SlackFilter.Controllers
         private static bool RequesterIsAllowed(MessageField field, string[] requesterList)
         {
             return field.Title == "Requested by" && requesterList.Contains(field.Value);
+        }
+
+        private static bool ReviewersAreAllowed(MessageField field, IEnumerable<string> requesterList)
+        {
+            return field.Title == "Reviewers" &&
+                   requesterList.Any(_ => field.Value.Contains(_));
         }
     }
 }
