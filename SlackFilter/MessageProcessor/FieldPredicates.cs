@@ -8,18 +8,18 @@ namespace SlackFilter.MessageProcessor
     {
         public static bool BuildIsAllowed(MessageField field, string[] buildList)
         {
-            return field.Title == "Build Definition" && buildList.Contains(field.Value);
+            return field != null && (field.Title == "Build Definition" && buildList.Contains(field.Value));
         }
 
         public static bool RequesterIsAllowed(MessageField field, string[] requesterList)
         {
-            return field.Title == "Requested by" && requesterList.Contains(field.Value);
+            return field != null && (field.Title == "Requested by" && requesterList.Contains(field.Value));
         }
 
         public static bool ReviewersAreAllowed(MessageField field, IEnumerable<string> requesterList)
         {
-            return field.Title == "Reviewers" &&
-                   requesterList.Any(_ => field.Value.Contains(_));
+            return field != null && (field.Title == "Reviewers" &&
+                                     requesterList.Any(_ => field.Value.Contains(_)));
         }
     }
 }
