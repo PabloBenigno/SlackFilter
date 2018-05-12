@@ -1,20 +1,21 @@
 ﻿using SlackFilter.Configuration;
 using SlackFilter.Model;
+using SlackFilter.ServiceClients;
 
 namespace SlackFilter.MessageProcessor.MessageFilters
 {
-    internal class AttachmentFilterFactory
+    internal static class AttachmentFilterFactory
     {
-        public static IAttachmentFilter GetAttachmentFilter(SlackMessageSubject subject, TeamConfiguration configuration)
+        public static IAttachmentFilter GetAttachmentFilter(SlackMessageSubject subject, TeamConfiguration teamConfiguration, SlackFilterConfiguration configuration)
         {
             switch (subject)
             {
                 case SlackMessageSubject.BuildCompleted:
-                    return new BuildCompletedFilter(configuration);
+                    return new BuildCompletedFilter(teamConfiguration, new VstsClient(configuration));
                 case SlackMessageSubject.PullRequestCreated:
-                    return new PullRequestCreatedFilter(configuration);
+                    return new PullRequestCreatedFilter(teamConfiguration);
                 case SlackMessageSubject.ReleaseCompleted:
-                    return new ReleaseCompletedFilter(configuration);
+                    return new ReleaseCompletedFilter(teamConfiguration);
                 default:
                     return new MessageWithNoFilter();
             }

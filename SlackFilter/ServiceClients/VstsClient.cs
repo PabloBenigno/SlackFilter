@@ -73,7 +73,7 @@ namespace SlackFilter.ServiceClients
 
         private static T GetOrAddItemIntoCache<T>(string key, MemoryCache cache, Func<T> valueFactory) where T : BuildDefinition
         {
-            return cache.AddOrGetExisting<T>(key, valueFactory);
+            return cache.AddOrGetExisting(key, valueFactory);
         }
 
         public static void InitializeBuildDefinitionList(BuildDefinition[] buildDefinitionList)
@@ -103,7 +103,6 @@ namespace SlackFilter.ServiceClients
             }
         }
     }
-        
     
 
     public class GetBuildDefinitionResult
