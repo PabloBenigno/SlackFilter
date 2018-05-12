@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SlackFilter.Configuration;
 using SlackFilter.MessageProcessor;
+using SlackFilter.ServiceClients;
 using Spin.WebApi;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -21,6 +22,11 @@ namespace SlackFilter
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
 
+            if (env.IsDevelopment())
+            {
+                builder.AddUserSecrets<Startup>();
+            }
+
             Configuration = builder.Build();
         }
 
@@ -35,10 +41,16 @@ namespace SlackFilter
                 .AddSpinLogger();
 
             var configuration = Configuration.GetSection("SlackFilterConfiguration").Get<SlackFilterConfiguration>();
+
+            if (Configuration["PersonalToken"] != null)
+                configuration.PersonalToken = Configuration["PersonalToken"];
+
             services.AddSingleton(configuration);
 
-            services.AddScoped<SlackMessageProcessor>(); 
+            services.AddScoped<SlackMessageProcessor>();
+            services.AddScoped<VstsClient>();
 
+            
             services.AddMvc()
                 .AddJsonOptions(opt =>
                 {
