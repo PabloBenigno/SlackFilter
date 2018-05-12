@@ -15,12 +15,12 @@ namespace SlackFilter.MessageProcessor
 {
     public class SlackMessageProcessor
     {
+        private static SlackFilterConfiguration _configuration;
         private readonly ISpinLogger<SlackMessageProcessor> _logger;
-        private readonly TeamConfiguration[] _teamConfigurations;
 
         public SlackMessageProcessor(SlackFilterConfiguration configuration, ISpinLogger<SlackMessageProcessor> logger)
         {
-            _teamConfigurations = configuration.TeamConfigurations;
+            _configuration = configuration;
             if (logger != null) _logger = logger;
         }
 
@@ -34,7 +34,7 @@ namespace SlackFilter.MessageProcessor
                 return;
             }
 
-            foreach (var teamConfiguration in _teamConfigurations)
+            foreach (var teamConfiguration in _configuration.TeamConfigurations)
             {
                 _logger.Log(LogLevel.Information, $"Checking filters for team {teamConfiguration.Name}...");
                 ProcessMessageByTeam(subject, slackMessage, teamConfiguration);
@@ -64,7 +64,7 @@ namespace SlackFilter.MessageProcessor
 
         private static bool PassFilter(MessageAttachment attachment, SlackMessageSubject subject, TeamConfiguration configuration)
         {
-            var attachmentFilter = AttachmentFilterFactory.GetAttachmentFilter(subject, configuration);
+            var attachmentFilter = AttachmentFilterFactory.GetAttachmentFilter(subject, configuration, _configuration);
             return attachmentFilter != null && attachmentFilter.PassFilter(attachment);
         }
 
