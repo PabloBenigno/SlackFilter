@@ -13,34 +13,27 @@ namespace SlackFilter.ServiceClients
     public class VstsClient
     {
         private readonly string _vstscredentials;
-        private readonly string _vsrmBaseAddress;
         private readonly string _vstsBaseAddress;
 
         public VstsClient(SlackFilterConfiguration configuration)
         {
             _vstscredentials = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($":{configuration.PersonalToken}"));
             _vstsBaseAddress = configuration.VstsBaseAddress;
-            _vsrmBaseAddress = configuration.VsrmBaseAddress;
         }
 
         public BuildDefinition[] GetBuildDefinitionList()
         {
-            return GetVstsItems<GetBuildDefinitionResult>(_vstsBaseAddress, "SoderbergPartners/_apis/build/definitions?api-version=5.0-preview.6").Value;
+            return GetVstsItems<GetBuildDefinitionResult>("SoderbergPartners/_apis/build/definitions?api-version=5.0-preview.6").Value;
         }
 
-        public ReleaseDefinition[] GetReleaseDefinitionList()
-        {
-            return GetVstsItems<GetReleaseDefinitionResult>(_vsrmBaseAddress, "SoderbergPartners/_apis/release/definitions?api-version=5.0-preview.3").Value;
-        }
-
-        private T GetVstsItems<T>(string baseAddress, string request)
+        private T GetVstsItems<T>(string request)
         {
             string result;
 
             //use the httpclient
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(baseAddress); //url of our account
+                client.BaseAddress = new Uri(_vstsBaseAddress); //url of our account
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _vstscredentials);
@@ -62,22 +55,9 @@ namespace SlackFilter.ServiceClients
 
         private BuildDefinition RetrieveBuildDefinitionByName(string name)
         {
-            var retrieveBuildDefinitionByName = GetVstsItems<GetBuildDefinitionResult>(_vstsBaseAddress,
+            var retrieveBuildDefinitionByName = GetVstsItems<GetBuildDefinitionResult>(
                 $"SoderbergPartners/_apis/build/definitions?name={name}&api-version=5.0-preview.6");
             return retrieveBuildDefinitionByName.Value.First();
-        }
-
-        public ReleaseDefinition GetReleaseDefinitionByName(string name)
-        {
-            return CacheManager.GetOrAddItemIntoReleaseDefinitionCache(name,
-                () => RetrieveReleaseDefinitionByName(name));
-        }
-
-        private ReleaseDefinition RetrieveReleaseDefinitionByName(string name)
-        {
-            var retrieveReleaseDefinitionByName = GetVstsItems<GetReleaseDefinitionResult>(_vsrmBaseAddress,
-                $"/SoderbergPartners/_apis/release/definitions?searchText={name}&api-version=5.0-preview.3");
-            return retrieveReleaseDefinitionByName.Value.First();
         }
     }
 }

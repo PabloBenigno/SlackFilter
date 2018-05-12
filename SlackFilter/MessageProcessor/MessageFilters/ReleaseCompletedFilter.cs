@@ -22,10 +22,8 @@ namespace SlackFilter.MessageProcessor.MessageFilters
             var releaseField = attachment.Fields.FirstOrDefault(_ => _.Title == "Release");
 
             var releaseName = releaseField?.Value.Replace(">", "").Split('|').Last();
-            if (string.IsNullOrWhiteSpace(releaseName)) return false;
-
-            var releaseDefinition = _vstsClient.GetReleaseDefinitionByName(releaseName);
-            return releaseDefinition.Name.StartsWith(_configuration.ReleasePrefix);
+            return !string.IsNullOrWhiteSpace(releaseName) && 
+                   releaseName.StartsWith(_configuration.ReleasePrefix);
         }
     }
 }

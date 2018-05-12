@@ -25,7 +25,6 @@ namespace SlackFilter.Controllers
 
             
             CacheManager.InitializeBuildDefinitionList(_vstsClient.GetBuildDefinitionList());
-            CacheManager.InitializeReleaseDefinitionList(_vstsClient.GetReleaseDefinitionList());
         }
 
         [HttpGet]
