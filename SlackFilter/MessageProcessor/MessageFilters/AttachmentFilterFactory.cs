@@ -15,7 +15,7 @@ namespace SlackFilter.MessageProcessor.MessageFilters
                 case SlackMessageSubject.PullRequestCreated:
                     return new PullRequestCreatedFilter(teamConfiguration);
                 case SlackMessageSubject.ReleaseCompleted:
-                    return new ReleaseCompletedFilter(teamConfiguration);
+                    return new ReleaseCompletedFilter(teamConfiguration, new VstsClient(configuration));
                 default:
                     return new MessageWithNoFilter();
             }
