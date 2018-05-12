@@ -1,14 +1,11 @@
-﻿using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SlackFilter.Configuration;
 using SlackFilter.MessageProcessor;
 using SlackFilter.Model;
 using SlackFilter.ServiceClients;
+using SlackFilter.ServiceClients.Cache;
 using Spin.Logger.Abstractions;
 
 namespace SlackFilter.Controllers

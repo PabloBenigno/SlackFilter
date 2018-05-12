@@ -4,6 +4,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using SlackFilter.Configuration;
+using SlackFilter.ServiceClients.Cache;
+using SlackFilter.ServiceClients.Model;
 
 
 namespace SlackFilter.ServiceClients

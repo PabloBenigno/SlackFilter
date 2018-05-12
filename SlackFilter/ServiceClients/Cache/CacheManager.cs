@@ -1,7 +1,8 @@
 ﻿using System;
 using Microsoft.Extensions.Caching.Memory;
+using SlackFilter.ServiceClients.Model;
 
-namespace SlackFilter.ServiceClients
+namespace SlackFilter.ServiceClients.Cache
 {
     internal static class CacheManager
     {

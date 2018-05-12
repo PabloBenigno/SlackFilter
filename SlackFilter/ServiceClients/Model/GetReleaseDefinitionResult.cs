@@ -1,4 +1,4 @@
-﻿namespace SlackFilter.ServiceClients
+﻿namespace SlackFilter.ServiceClients.Model
 {
     public class GetReleaseDefinitionResult
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace SlackFilter.ServiceClients
+namespace SlackFilter.ServiceClients.Cache
 {
     internal static class MemoryCacheExtensions
     {
