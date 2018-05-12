@@ -26,17 +26,6 @@ namespace SlackFilter.Controllers
             
             CacheManager.InitializeBuildDefinitionList(_vstsClient.GetBuildDefinitionList());
         }
-
-        [HttpGet]
-        [Route("GetBuildByName")]
-        public string GetBuildByName(string name)
-        {
-            var buildDefinitionByName = _vstsClient.GetBuildDefinitionByName(name);
-            return buildDefinitionByName == null ? 
-                "NotFound" : 
-                JsonConvert.SerializeObject(buildDefinitionByName);
-        }
-
         
         [HttpPost]
         [Route("BuildCompleted")]
