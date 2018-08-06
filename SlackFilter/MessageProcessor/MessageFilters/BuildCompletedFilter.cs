@@ -18,7 +18,7 @@ namespace SlackFilter.MessageProcessor.MessageFilters
         }
         public bool PassFilter(MessageAttachment attachment)
         {
-            var buildDefinitionField = attachment.Fields.FirstOrDefault(_ => _.Title == "Build Definition");
+            var buildDefinitionField = attachment.Fields.FirstOrDefault(_ => _.Title == "Build pipeline");
             if (buildDefinitionField == null) return false;
 
             var buildDefinition = _vstsClient.GetBuildDefinitionByName(buildDefinitionField.Value);
